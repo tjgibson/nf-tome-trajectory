@@ -5,6 +5,8 @@ suppressPackageStartupMessages({
   library(Seurat)
 })
 
+options(future.globals.maxSize = 32000 * 1024^2)
+
 # read command line arguments ==================================================
 args <- commandArgs(TRUE)
 seurat_object_fn <- args[1]

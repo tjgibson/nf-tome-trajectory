@@ -17,7 +17,7 @@ cell_type_key <- args[3]
 time_1 <- args[4]
 time_2 <- args[5]
 lineage_knn <- args[6]
-k_neighbors <- args[7]
+k_neighbors <- as.numeric(args[7])
 
 source(lineage_knn)
 # Read in data =================================================================

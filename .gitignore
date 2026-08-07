@@ -1,0 +1,6 @@
+test_data/
+local.config
+work/
+results/
+.DS_Store
+.nextflow*

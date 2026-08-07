@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: sentence
----
-
 ## Introduction
 
 This repository contains a nextflow pipeline for performing lineage analysis in single-cell RNA-seq time course data, as described in [Qiu et al., 2022](https://doi.org/10.1038/s41588-022-01018-x).

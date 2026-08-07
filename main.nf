@@ -1,20 +1,7 @@
 #! /usr/bin/env nextflow
 
-log.info """
-	TOME timecourse trajectory pipeline
-	===================================
-	samplesheet: ${params.samplesheet}
-	results_dir: ${params.results_dir}
-	"""
-	.stripIndent()
 
-/* input files:	
- * samplesheet
- * integrated seurat object
- */
  
-
-
 /*
  * prepare and validate input seurat object
  */
@@ -22,15 +9,15 @@ log.info """
 process validate_seurat {
 	label 'process_medium'
 	container "tjmgibson/scrnaseq_preprocess:v2"
-	
+
 	input:
 	path(seurat_obj)
-	
+
 	output:
 	path(seurat_obj)
-	
+
 	script:
-    """
+	"""
 	validate_seurat_obj.R ${seurat_obj} ${params.timepoint_metadata_key} ${params.timepoint_names}
 	"""
 }
@@ -53,19 +40,19 @@ process validate_seurat {
 	output:
 	tuple path("${time_1}_${time_2}.rds"), path("${time_1}_${time_2}_umap3.rds"), path("${time_1}_${time_2}_anno.rds")
 	path("${time_1}_${time_2}_Knn_umap.rds"), emit: knn_umap
-	
+
 	script:
-    """
+	"""
 	lineage_connection.R ${seurat_obj} ${params.timepoint_metadata_key} ${params.cell_type_key} ${time_1} ${time_2} ${lineage_knn_source} ${params.k_neighbors}
 	"""
     
-    stub:
-    """
-    touch ${time_1}_${time_2}.rds
+	stub:
+	"""
+	touch ${time_1}_${time_2}.rds
 	touch ${time_1}_${time_2}_umap3.rds
 	touch ${time_1}_${time_2}_anno.rds
 	touch ${time_1}_${time_2}_Knn_umap.rds
-    """	
+	"""	
 }
 
 

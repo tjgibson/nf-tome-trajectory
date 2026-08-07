@@ -51,7 +51,8 @@ process validate_seurat {
 	path(lineage_knn_source)
 	
 	output:
-	tuple val(timepoint_pair), val(time_1), val(time_2), path("${time_1}_${time_2}.rds"), path("${time_1}_${time_2}_umap3.rds"), path("${time_1}_${time_2}_anno.rds"), path("${time_1}_${time_2}_Knn_umap.rds")
+	tuple path("${time_1}_${time_2}.rds"), path("${time_1}_${time_2}_umap3.rds"), path("${time_1}_${time_2}_anno.rds")
+	path("${time_1}_${time_2}_Knn_umap.rds"), emit: knn_umap
 	
 	script:
     """
@@ -67,34 +68,10 @@ process validate_seurat {
     """	
 }
 
-//  process permute_lineage
-
-//  process permute_lineage {
-// 	tag "$timepoint_pair"
-// 	label 'process_medium'
-// 	container = "tjmgibson/scrnaseq_preprocess:v2"
-// 	publishDir "${params.results_dir}/lineage_permutation/", mode: 'copy'
-	
-// 	input:
-// 	tuple val(timepoint_pair), val(time_1), val(time_2), path(integrated_pair_seurat), path(embeddings), path(annotation), path(knn_umap)
-	
-// 	output:
-// 	path("${time_1}_${time_2}_Knn_umap_permutation.rds")
-	
-// 	script:
-//     """
-// 	permute_Knn.R ${time_1} ${time_2} ${embeddings} ${annotation} ${params.n_permutations} ${params.k_neighbors}
-// 	"""
-    
-//     stub:
-//     """
-//     touch ${time_1}_${time_2}_Knn_umap_permutation.rds
-//     """	
-// }
 
 //  process summarize_results
  process summarize_results {
-	label 'process_medium'
+	label 'process_low'
 	container = "tjmgibson/scrnaseq_preprocess:v2"
 	publishDir "${params.results_dir}/tree_results/", mode: 'copy'
 	
@@ -102,7 +79,8 @@ process validate_seurat {
 	path(knn_umap_files)
 	
 	output:
-	tuple path("edge_all.rds"), path("tree_edge.txt"), path("edge_prob.txt")
+	tuple path("tree_edge.txt"), path("edge_prob.txt"), path("edge_all.rds")
+	path("edge_all.rds"), emit: edge_all
 	
 	script:
     """
@@ -114,32 +92,32 @@ process validate_seurat {
     touch edge_all.rds
 	touch edge_prob.txt
 	touch tree_edge.txt
+	touch tree.pdf
     """	
 }
 
-// // generate json file for tree 
-// process create_map {
-// 	label 'process_medium'
-// 	container = "tjmgibson/scrnaseq_preprocess:v2"
-// 	publishDir "${params.results_dir}/tree_results/", mode: 'copy'
+process plot_tree {
+	label 'process_low'
+	container = "tjmgibson/r_networks:v1"
+	publishDir "${params.results_dir}/tree_results/", mode: 'copy'
 
-// 	input:
-// 	tuple path(edge_all), path(tree_edge), path(edge_prob)
-// 	path(celltype_group)
-	
-// 	output:
-// 	path("tree.json")
-	
-// 	script:
-//     """
-// 	create_map.py  ${params.timepoint_names} $tree_edge $edge_prob ${celltype_group}
-// 	"""
+	input:
+	path(edge_all)
+
+	output:
+	path("tree.pdf")
+
+	script:
+    """
+	plot_trajectory_tree.R  ${params.timepoint_names} ${params.min_edge_weight} ${edge_all}
+	"""
     
-//     stub:
-//     """
-//     touch tree.json
-//     """	
-// }
+    stub:
+    """
+    touch tree.pdf
+    """	
+
+}
 
 /*
  * Run workflow
@@ -173,15 +151,16 @@ workflow {
 		validated_seurat_ch,
 		file(params.lineage_knn_source)
 	)
+	
+	summary_ch = lineage_ch.knn_umap
+	| collect
+	| summarize_results
 
-	// permutation_ch = permute_lineage(lineage_ch)
-	// | collect
 
-	summary_ch = summarize_results(permutation_ch)
 
-	map_ch = create_map(
-		summary_ch,
-		file(params.celltype_group, checkIfExists: true)
-	)
+	tree_fig_ch = summary_ch.edge_all 
+	| plot_tree
+
+
 
 }

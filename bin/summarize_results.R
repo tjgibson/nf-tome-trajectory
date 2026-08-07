@@ -2,13 +2,10 @@
 
 # Setup ========================================================================
 suppressPackageStartupMessages({
-  library(Seurat)
   library(tidyverse)
   library(reshape2)
 })
 
-
-options(future.globals.maxSize = 32000 * 1024^2)
 
 # read command line arguments ==================================================
 args <- commandArgs(TRUE)

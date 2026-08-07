@@ -21,7 +21,7 @@ log.info """
 
 process validate_seurat {
 	label 'process_medium'
-	container = "tjmgibson/scrnaseq_preprocess:v2"
+	container "tjmgibson/scrnaseq_preprocess:v2"
 	
 	input:
 	path(seurat_obj)
@@ -42,7 +42,7 @@ process validate_seurat {
  process compute_lineage {
 	tag "$timepoint_pair"
 	label 'process_medium'
-	container = "tjmgibson/scrnaseq_preprocess:v2"
+	container "tjmgibson/scrnaseq_preprocess:v2"
 	publishDir "${params.results_dir}/pairwise_integration/", mode: 'copy'
 	
 	input:
@@ -72,7 +72,7 @@ process validate_seurat {
 //  process summarize_results
  process summarize_results {
 	label 'process_low'
-	container = "tjmgibson/scrnaseq_preprocess:v2"
+	container "tjmgibson/scrnaseq_preprocess:v2"
 	publishDir "${params.results_dir}/tree_results/", mode: 'copy'
 	
 	input:
@@ -98,7 +98,7 @@ process validate_seurat {
 
 process plot_tree {
 	label 'process_low'
-	container = "tjmgibson/r_networks:v1"
+	container "tjmgibson/r_networks:v1"
 	publishDir "${params.results_dir}/tree_results/", mode: 'copy'
 
 	input:

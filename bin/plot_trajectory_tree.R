@@ -11,7 +11,7 @@ suppressPackageStartupMessages({
 args <- commandArgs(TRUE)
 tp_list <- unlist(strsplit(args[1], split = ","))
 edge_prob_thresh <- as.numeric(args[2])
-eged_all_fn <- args[3]
+edge_all_fn <- args[3]
 
 # read in edge list ============================================================
 edge_all <- readRDS(edge_all_fn)

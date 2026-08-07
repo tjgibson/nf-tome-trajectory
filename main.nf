@@ -7,7 +7,7 @@
  */
 
 process validate_seurat {
-	label 'process_medium'
+	label 'process_high'
 	container "tjmgibson/scrnaseq_preprocess:v2"
 
 	input:
@@ -28,7 +28,7 @@ process validate_seurat {
 
  process compute_lineage {
 	tag "$timepoint_pair"
-	label 'process_medium'
+	label 'process_high'
 	container "tjmgibson/scrnaseq_preprocess:v2"
 	publishDir "${params.results_dir}/pairwise_integration/", mode: 'copy'
 	
